@@ -1,6 +1,23 @@
 import os
 import csv
 
+
+class InstantiateCSVError(Exception):
+    def __init__(self):
+        pass
+
+    def __str__(self):
+        return 'Файл item.csv поврежден'
+
+
+class FileNotFoundError(Exception):
+    def __init__(self):
+        pass
+
+    def __str__(self):
+        return "Отсутствует файл item.csv"
+
+
 class Item:
     """
     Класс для представления товара в магазине.
@@ -54,22 +71,28 @@ class Item:
         else:
             self.__name = value[:10]
 
+
     @classmethod
-    def instantiate_from_csv(cls, data):
-        data = f'../{data}'
-        Item.all = []
-        with open(data, 'r', newline='') as csvfile:
-            spamreader = csv.reader(csvfile, delimiter=' ', quotechar='|')
-            for row in spamreader:
-                lines = csvfile.readlines()
-                for i in lines:
-                    name, price, quantity = i.split(',')
-                    cls(name, price, quantity)
+    def instantiate_from_csv(cls, data = '../src/items.csv'):
+        try:
+            data = f'../{data}'
+            Item.all = []
+            with open(data, 'r', newline='') as csvfile:
+                spamreader = csv.reader(csvfile, delimiter=' ', quotechar='|')
+                for row in spamreader:
+                    lines = csvfile.readlines()
+                    for i in lines:
+                        name, price, quantity = i.split(',')
+                        cls(name, price, quantity)
+        except KeyError:
+            raise InstantiateCSVError("Файл item.csv поврежден")
+        except FileNotFoundError:
+            raise FileNotFoundError("Отсутствует файл item.csv")
+
 
     @staticmethod
     def string_to_number(str):
         return(int(float(str)))
-
 
 
     def __repr__(self) -> str:
